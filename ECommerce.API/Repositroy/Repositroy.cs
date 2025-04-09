@@ -80,5 +80,10 @@ namespace ECommerce.API.Repositroy
         {
             return Get(filter, includes, tracked).FirstOrDefault();
         }
+
+        public void Comitt()
+        {
+            dbContext.SaveChanges();
+        }
     }
 }

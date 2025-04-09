@@ -9,6 +9,7 @@ namespace ECommerce.API.Repositroy.IRepository
         public void Create(IEnumerable<T> entities);
 
         public void Edit(T entity);
+        public void Comitt();
 
         public void Delete(T entity);
 
