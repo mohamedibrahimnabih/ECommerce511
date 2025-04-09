@@ -7,6 +7,8 @@ using Scalar.AspNetCore;
 using Mapster;
 using System.Reflection;
 using MapsterMapper;
+using ECommerce.API.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ECommerce.API
 {
@@ -36,6 +38,16 @@ namespace ECommerce.API
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = false;
+            })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            //builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
             var config = TypeAdapterConfig.GlobalSettings;
             config.Scan(Assembly.GetExecutingAssembly());
 
@@ -60,7 +72,7 @@ namespace ECommerce.API
 
             app.UseAuthorization();
 
-
+            //app.MapIdentityApi<ApplicationUser>();
             app.MapControllers();
 
             app.Run();
