@@ -4,7 +4,7 @@ namespace ECommerce.API.Repositroy.IRepository
 {
     public interface IRepository<T> where T : class
     {
-        public void Create(T entity);
+        public T Create(T entity);
 
         public void Create(IEnumerable<T> entities);
 
@@ -13,8 +13,6 @@ namespace ECommerce.API.Repositroy.IRepository
         public void Delete(T entity);
 
         public void Delete(IEnumerable<T> entities);
-
-        public void Commit();
 
         public IEnumerable<T> Get(Expression<Func<T, bool>>? filter = null, Expression<Func<T, object>>[]? includes = null, bool tracked = true);
 

@@ -4,6 +4,9 @@ using ECommerce.API.Repositories.IRepositories;
 using ECommerce.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using Mapster;
+using System.Reflection;
+using MapsterMapper;
 
 namespace ECommerce.API
 {
@@ -29,6 +32,11 @@ namespace ECommerce.API
                                       policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                                   });
             });
+
+            var config = TypeAdapterConfig.GlobalSettings;
+            config.Scan(Assembly.GetExecutingAssembly());
+
+            builder.Services.AddSingleton<IMapper>(new Mapper(config));
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

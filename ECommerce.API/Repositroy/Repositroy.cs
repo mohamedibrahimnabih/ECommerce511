@@ -18,33 +18,36 @@ namespace ECommerce.API.Repositroy
         }
 
         // CRUD
-        public void Create(T entity)
+        public T Create(T entity)
         {
             dbSet.Add(entity);
+            dbContext.SaveChanges();
+
+            return entity;
         }
 
         public void Create(IEnumerable<T> entities)
         {
             dbSet.AddRange(entities);
+            dbContext.SaveChanges();
         }
 
         public void Edit(T entity)
         {
             dbSet.Update(entity);
+            dbContext.SaveChanges();
         }
 
         public void Delete(T entity)
         {
             dbSet.Remove(entity);
+            dbContext.SaveChanges();
+
         }
 
         public void Delete(IEnumerable<T> entities)
         {
             dbSet.RemoveRange(entities);
-        }
-
-        public void Commit()
-        {
             dbContext.SaveChanges();
         }
 

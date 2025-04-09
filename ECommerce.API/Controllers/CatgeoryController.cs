@@ -1,7 +1,8 @@
-﻿using ECommerce.API.Models;
+﻿using ECommerce.API.DTOs.Request;
+using ECommerce.API.DTOs.Response;
+using ECommerce.API.Models;
 using ECommerce.API.Repositories.IRepositories;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -20,9 +21,21 @@ namespace ECommerce.API.Controllers
         [HttpGet("")]
         public IActionResult GetAll()
         {
-            var categories = _categoryRepository.Get();
+            var categories = _categoryRepository.Get(includes: [e=>e.Products]);
 
-            return Ok(categories);
+            //List<CategoryResponse> categoryResponse = new();
+            //foreach (var item in categories)
+            //{
+            //    categoryResponse.Add(new()
+            //    {
+            //        Id = item.Id,
+            //        Name = item.Name,
+            //        Description = item.Description,
+            //        Status = item.Status
+            //    });
+            //}
+
+            return Ok(categories.Adapt<IEnumerable<CategoryResponse>>());
         }
 
         [HttpGet("{id}")]
@@ -32,16 +45,22 @@ namespace ECommerce.API.Controllers
             var category = _categoryRepository.GetOne(e => e.Id == id);
 
             if (category != null)
-                return Ok(category);
+            {
+                return Ok(category.Adapt<CategoryResponse>());
+            }
 
             return NotFound();
         }
 
         [HttpPost("")]
-        public IActionResult Create([FromBody] Category category)
+        public IActionResult Create([FromBody] CategoryRequest category)
         {
-            _categoryRepository.Create(category);
-            _categoryRepository.Commit();
+            var categoryInDb = _categoryRepository.Create(new Category()
+            {
+                Name = category.Name,
+                Description = category.Description,
+                Status = category.Status
+            });
 
             //CookieOptions cookieOptions = new CookieOptions()
             //{
@@ -52,19 +71,23 @@ namespace ECommerce.API.Controllers
 
             //return Create();
             //return Created($"{Request.Scheme}://{Request.Host}/api/Catgeory/{category.Id}", category);
-            return CreatedAtAction(nameof(GetOne), new { id = category.Id }, category);
+            return CreatedAtAction(nameof(GetOne), new { id = categoryInDb.Id }, category);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] Category category)
+        public IActionResult Update([FromRoute] int id, [FromBody] CategoryRequest category)
         {
             var categoryInDB = _categoryRepository.GetOne(e => e.Id == id, tracked: false);
 
             if(categoryInDB != null)
             {
-                category.Id = categoryInDB.Id;
-                _categoryRepository.Edit(category);
-                _categoryRepository.Commit();
+                _categoryRepository.Edit(new Category()
+                {
+                    Id = id,
+                    Name = category.Name,
+                    Description = category.Description,
+                    Status = category.Status
+                });
 
                 return NoContent();
             }
@@ -80,7 +103,6 @@ namespace ECommerce.API.Controllers
             if (categoryInDB != null)
             {
                 _categoryRepository.Delete(categoryInDB);
-                _categoryRepository.Commit();
 
                 return NoContent();
             }
