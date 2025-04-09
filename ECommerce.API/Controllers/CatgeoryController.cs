@@ -3,6 +3,7 @@ using ECommerce.API.DTOs.Response;
 using ECommerce.API.Models;
 using ECommerce.API.Repositories.IRepositories;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -19,6 +20,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet("")]
+        [Authorize]
         public IActionResult GetAll()
         {
             var categories = _categoryRepository.Get(includes: [e=>e.Products]);

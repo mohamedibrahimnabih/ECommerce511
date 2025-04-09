@@ -51,5 +51,41 @@ namespace ECommerce.API.Controllers
                 return BadRequest(result.Errors);
             }
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequest loginRequest)
+        {
+            var appUser = await _userManager.FindByEmailAsync(loginRequest.Email);
+
+            if (appUser != null)
+            {
+                var result = await _userManager.CheckPasswordAsync(appUser, loginRequest.Password);
+
+                if (result)
+                {
+                    // Login
+                    await _signInManager.SignInAsync(appUser, loginRequest.RememberMe);
+
+                    return NoContent();
+                }
+                else
+                {
+                    ModelStateDictionary keyValuePairs = new();
+                    keyValuePairs.AddModelError("Error", "Invalid Data");
+                    return BadRequest(keyValuePairs);
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return NoContent();
+        }
     }
 }
