@@ -1,9 +1,4 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Models;
-using ECommerce.API.Repositories.IRepositories;
-using ECommerce.API.Repositroy;
-
-namespace ECommerce.API.Repositories
+﻿namespace ECommerce.API.Repositroy
 {
     public class CategoryRepository : Repository<Category>, ICategoryRepository
     {

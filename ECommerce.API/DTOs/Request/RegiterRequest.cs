@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ECommerce.API.DTOs.Request
+﻿namespace ECommerce.API.DTOs.Request
 {
     public class RegiterRequest
     {

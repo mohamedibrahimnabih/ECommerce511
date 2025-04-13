@@ -1,12 +1,13 @@
 ﻿namespace ECommerce.API.Repositroy
 {
-    public class ProductRepository : Repository<Product>, IProductRepository
+    public class CartRepository : Repository<Cart>, ICartRepository
     {
         private readonly ApplicationDbContext dbContext;
 
-        public ProductRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public CartRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
             this.dbContext = dbContext;
         }
+
     }
 }

@@ -1,13 +1,7 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.DTOs.Request;
-using ECommerce.API.DTOs.Response;
-using ECommerce.API.Models;
-using ECommerce.API.Repositories;
-using ECommerce.API.Repositories.IRepositories;
-using Mapster;
+﻿using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace ECommerce.API.Controllers
 {
@@ -46,7 +40,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Create([FromForm] ProductRequest productRequest)
+        public async Task<IActionResult> Create([FromForm] ProductRequest productRequest, CancellationToken cancellationToken)
         {
             if (productRequest.File != null && productRequest.File.Length > 0)
             {
@@ -61,13 +55,14 @@ namespace ECommerce.API.Controllers
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
-                    productRequest.File.CopyTo(stream);
+                    await productRequest.File.CopyToAsync(stream);
                 }
 
                 // Save img name in db
                 Product product = productRequest.Adapt<Product>();
                 product.MainImg = fileName;
-                var productInDb = _productRepository.Create(product);
+                var productInDb = await _productRepository.CreateAsync(product, cancellationToken);
+                await _productRepository.CommitAsync();
 
                 return CreatedAtAction(nameof(GetById), new { id = productInDb.Id }, productRequest);
             }
@@ -122,7 +117,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpDelete("DeleteImg/{id}")]
-        public IActionResult DeleteImg(int id)
+        public async Task<IActionResult> DeleteImg(int id)
         {
             var product = _productRepository.GetOne(e => e.Id == id);
 
@@ -137,7 +132,7 @@ namespace ECommerce.API.Controllers
 
                 // Delete img name in db
                 product.MainImg = null;
-                _productRepository.Comitt();
+                await _productRepository.CommitAsync();
 
                 return RedirectToAction("Edit", new { id });
             }

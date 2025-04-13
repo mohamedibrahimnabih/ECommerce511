@@ -1,6 +1,4 @@
-﻿using ECommerce.API.Models;
-
-namespace ECommerce.API.DTOs.Response
+﻿namespace ECommerce.API.DTOs.Response
 {
     public class ProductResponse
     {

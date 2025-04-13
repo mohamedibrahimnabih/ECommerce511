@@ -1,10 +1,7 @@
-﻿using ECommerce.API.DTOs.Request;
-using ECommerce.API.DTOs.Response;
-using ECommerce.API.Models;
-using ECommerce.API.Repositories.IRepositories;
-using Mapster;
+﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace ECommerce.API.Controllers
 {
@@ -20,7 +17,6 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet("")]
-        [Authorize]
         public IActionResult GetAll()
         {
             var categories = _categoryRepository.Get(includes: [e=>e.Products]);
@@ -55,14 +51,15 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult Create([FromBody] CategoryRequest category)
+        public async Task<IActionResult> Create([FromBody] CategoryRequest category, CancellationToken cancellationToken)
         {
-            var categoryInDb = _categoryRepository.Create(new Category()
+            var categoryInDb = await _categoryRepository.CreateAsync(new Category()
             {
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status
-            });
+            }, cancellationToken);
+            await _categoryRepository.CommitAsync();
 
             //CookieOptions cookieOptions = new CookieOptions()
             //{

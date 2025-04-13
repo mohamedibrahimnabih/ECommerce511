@@ -4,12 +4,12 @@ namespace ECommerce.API.Repositroy.IRepository
 {
     public interface IRepository<T> where T : class
     {
-        public T Create(T entity);
+        Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default);
 
-        public void Create(IEnumerable<T> entities);
+        void Create(IEnumerable<T> entities);
 
         public void Edit(T entity);
-        public void Comitt();
+        Task<bool> CommitAsync();
 
         public void Delete(T entity);
 

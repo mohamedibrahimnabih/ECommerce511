@@ -1,6 +1,6 @@
 ﻿namespace ECommerce.API.Repositroy.IRepository
 {
-    public interface IProductRepository : IRepository<Product>
+    public interface IOrderRepository : IRepository<Order>
     {
     }
 }

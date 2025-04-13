@@ -1,8 +1,6 @@
-﻿using ECommerce.API.Models;
-using Mapster;
+﻿using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using ECommerce.API.DTOs.Request;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 

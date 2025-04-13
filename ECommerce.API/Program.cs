@@ -1,14 +1,10 @@
-
-using ECommerce.API.Data;
-using ECommerce.API.Repositories.IRepositories;
-using ECommerce.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Mapster;
 using System.Reflection;
 using MapsterMapper;
-using ECommerce.API.Models;
 using Microsoft.AspNetCore.Identity;
+using Stripe;
 
 namespace ECommerce.API
 {
@@ -56,6 +52,12 @@ namespace ECommerce.API
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+            builder.Services.AddScoped<ICartRepository, CartRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             var app = builder.Build();
 

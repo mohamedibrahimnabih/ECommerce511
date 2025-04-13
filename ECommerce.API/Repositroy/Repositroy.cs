@@ -3,6 +3,7 @@ using ECommerce.API.Repositroy.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ECommerce.API.Repositroy
 {
@@ -18,10 +19,10 @@ namespace ECommerce.API.Repositroy
         }
 
         // CRUD
-        public T Create(T entity)
+        public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
         {
-            dbSet.Add(entity);
-            dbContext.SaveChanges();
+            await dbSet.AddAsync(entity, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return entity;
         }
@@ -81,9 +82,17 @@ namespace ECommerce.API.Repositroy
             return Get(filter, includes, tracked).FirstOrDefault();
         }
 
-        public void Comitt()
+        public async Task<bool> CommitAsync()
         {
-            dbContext.SaveChanges();
+            try
+            {
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
