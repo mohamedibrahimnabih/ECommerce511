@@ -7,6 +7,7 @@ namespace ECommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "Admin")]
     public class CatgeoryController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepository;

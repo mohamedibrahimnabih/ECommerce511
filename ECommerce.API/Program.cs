@@ -5,6 +5,9 @@ using System.Reflection;
 using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
 using Stripe;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ECommerce.API
 {
@@ -17,7 +20,7 @@ namespace ECommerce.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            builder.Services.AddSignalR();
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
@@ -27,7 +30,8 @@ namespace ECommerce.API
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   policy =>
                                   {
-                                      policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                                      policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500/")
+                                      .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
                                   });
             });
 
@@ -59,6 +63,25 @@ namespace ECommerce.API
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+            builder.Services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "https://localhost:7021",
+                    ValidateAudience = true,
+                    ValidAudience = "https://localhost:4200",
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("EraaSoft511$$EraaSoft511&&EraaSoft511"))
+                };
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -72,10 +95,12 @@ namespace ECommerce.API
 
             app.UseCors(MyAllowSpecificOrigins);
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             //app.MapIdentityApi<ApplicationUser>();
             app.MapControllers();
+            app.MapHub<ChatHub>("/chatHub");
 
             app.Run();
         }

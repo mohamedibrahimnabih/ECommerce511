@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ECommerce.API.Controllers
 {
@@ -33,7 +36,7 @@ namespace ECommerce.API.Controllers
                 // Success Register
                 await _signInManager.SignInAsync(applicationUser, false);
 
-                if (_roleManager.Roles.IsNullOrEmpty())
+                if (_roleManager.Roles is not null)
                 {
                     await _roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
                     await _roleManager.CreateAsync(new IdentityRole("Admin"));
@@ -62,9 +65,38 @@ namespace ECommerce.API.Controllers
                 if (result)
                 {
                     // Login
-                    await _signInManager.SignInAsync(appUser, loginRequest.RememberMe);
+                    //await _signInManager.SignInAsync(appUser, loginRequest.RememberMe);
 
-                    return NoContent();
+                    var userRoles = await _userManager.GetRolesAsync(appUser);
+
+                    List<Claim> claims =
+                    [
+                        new Claim(ClaimTypes.Name, appUser.UserName),
+                        new Claim(ClaimTypes.NameIdentifier, appUser.Id),
+                    ];
+
+                    foreach (var item in userRoles)
+                    {
+                        claims.Add(new(ClaimTypes.Role, item));
+                    }
+
+                    SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes("EraaSoft511$$EraaSoft511&&EraaSoft511"));
+                    SigningCredentials signingCredentials = new(key, SecurityAlgorithms.HmacSha256);
+
+                    JwtSecurityToken token = new(
+                        issuer: "https://localhost:7021",
+                        audience: "https://localhost:4200",
+                        claims: claims,
+                        expires: DateTime.Now.AddHours(1),
+                        signingCredentials: signingCredentials
+                        );
+
+                    return Ok(
+                        new
+                        {
+                            token = new JwtSecurityTokenHandler().WriteToken(token)
+                        }
+                        );
                 }
                 else
                 {
